@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>VetPrime - Pets</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-custom mb-4">
+    <div class="container">
+      <a class="navbar-brand" href="#">VetPrime</a>
+      <div class="navbar-nav me-auto">
+        <a class="nav-link text-white" href="/tutores">Tutores</a>
+        <a class="nav-link active" href="/pets">Pets</a>
+        <a class="nav-link text-white" href="/agendamentos">Agendamentos</a>
+      </div>
+      <span class="navbar-text text-white me-3">Usuário: <strong id="nome-usuario">...</strong></span>
+      <a href="/logout" class="btn btn-outline-light btn-sm">Sair</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h2>Gestão de Pets</h2>
+
+    <div class="card card-form my-3 p-3">
+      <h5>Cadastrar Novo Pet</h5>
+      <form action="/api/pets" method="POST" class="row g-2">
+        <div class="col-md-3">
+          <input type="text" name="nome" class="form-control" placeholder="Nome do Pet" required>
+        </div>
+        <div class="col-md-3">
+          <input type="text" name="especie" class="form-control" placeholder="Espécie" required>
+        </div>
+        <div class="col-md-3">
+          <input type="text" name="raca" class="form-control" placeholder="Raça">
+        </div>
+        <div class="col-md-2">
+          <select name="tutor_id" id="select-tutores" class="form-select" required>
+            <option value="">Selecione o Tutor</option>
+          </select>
+        </div>
+        <div class="col-md-1">
+          <button type="submit" class="btn btn-success w-100">Salvar</button>
+        </div>
+      </form>
+    </div>
+
+    <table class="table table-bordered table-custom">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome do Pet</th>
+          <th>Espécie</th>
+          <th>Raça</th>
+          <th>Tutor Associado</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-pets"></tbody>
+    </table>
+  </div>
+
+  <script>
+    fetch('/api/usuario-logado')
+      .then(r => r.json())
+      .then(d => document.getElementById('nome-usuario').innerText = d.nome);
+
+    fetch('/api/tutores')
+      .then(r => r.json())
+      .then(tutores => {
+        const select = document.getElementById('select-tutores');
+        tutores.forEach(t => {
+          select.innerHTML += `<option value="${t.id}">${t.nome}</option>`;
+        });
+      });
+
+    fetch('/api/pets')
+      .then(r => r.json())
+      .then(pets => {
+        const tbody = document.getElementById('tabela-pets');
+        pets.forEach(p => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${p.id}</td>
+              <td>${p.nome}</td>
+              <td>${p.especie}</td>
+              <td>${p.raca}</td>
+              <td>${p.nome_tutor || 'Sem tutor'}</td>
+            </tr>
+          `;
+        });
+      });
+  </script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>VetPrime - Tutores</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-custom mb-4">
+    <div class="container">
+      <a class="navbar-brand" href="#">VetPrime</a>
+      <div class="navbar-nav me-auto">
+        <a class="nav-link active" href="/tutores">Tutores</a>
+        <a class="nav-link text-white" href="/pets">Pets</a>
+        <a class="nav-link text-white" href="/agendamentos">Agendamentos</a>
+      </div>
+      <span class="navbar-text text-white me-3">Usuário: <strong id="nome-usuario">...</strong></span>
+      <a href="/logout" class="btn btn-outline-light btn-sm">Sair</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h2>Gestão de Tutores</h2>
+
+    <div class="row my-3">
+      <div class="col-md-6">
+        <div class="input-group">
+          <input type="text" id="campo-busca" class="form-control" placeholder="Digite o nome para buscar...">
+          <button class="btn btn-secondary" onclick="carregarTutores()">Buscar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-form my-3 p-3">
+      <h5>Cadastrar Novo Tutor</h5>
+      <form action="/api/tutores" method="POST" class="row g-2">
+        <div class="col-md-4">
+          <input type="text" name="nome" class="form-control" placeholder="Nome Completo" required>
+        </div>
+        <div class="col-md-4">
+          <input type="text" name="cpf" class="form-control" placeholder="CPF" required>
+        </div>
+        <div class="col-md-3">
+          <input type="text" name="telefone" class="form-control" placeholder="Telefone" required>
+        </div>
+        <div class="col-md-1">
+          <button type="submit" class="btn btn-success w-100">Salvar</button>
+        </div>
+      </form>
+    </div>
+
+    <table class="table table-bordered table-custom">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>CPF (Descriptografado)</th>
+          <th>Telefone</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-tutores"></tbody>
+    </table>
+  </div>
+
+  <script>
+    fetch('/api/usuario-logado')
+      .then(r => r.json())
+      .then(d => document.getElementById('nome-usuario').innerText = d.nome);
+
+    function carregarTutores() {
+      const termo = document.getElementById('campo-busca').value;
+      fetch('/api/tutores?busca=' + encodeURIComponent(termo))
+        .then(res => res.json())
+        .then(tutores => {
+          const tbody = document.getElementById('tabela-tutores');
+          tbody.innerHTML = '';
+          tutores.forEach(t => {
+            tbody.innerHTML += `
+              <tr>
+                <td>${t.id}</td>
+                <td>${t.nome}</td>
+                <td>${t.cpf}</td>
+                <td>${t.telefone}</td>
+              </tr>
+            `;
+          });
+        });
+    }
+
+    carregarTutores();
+  </script>
+</body>
+</html>
